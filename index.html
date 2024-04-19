@@ -1,0 +1,143 @@
+<!doctype html>
+<html>
+  <head>
+  </head>
+  <body>
+    <div id=body>
+      棒頭直徑
+      <input type=number v-model=head_input style=text-align:right>
+      <label><input type=radio v-model=head_unit value=mm> mm</label>
+      <label><input type=radio v-model=head_unit value=in> in</label>
+      ({{head}})
+      <br>
+      棒身直徑
+      <input type=number v-model=body_input style=text-align:right>
+      <label><input type=radio v-model=body_unit value=mm> mm</label>
+      <label><input type=radio v-model=body_unit value=in> in</label>
+      ({{body}})
+      <br>
+      擴張進程
+      <input type=number v-model=cone_input style=text-align:right>
+      <label><input type=radio v-model=cone_unit value=mm> mm</label>
+      <label><input type=radio v-model=cone_unit value=in> in</label>
+      ({{cone}}) (寬度增加8mm時，長度增加量)
+      <br>
+      轉角寬度
+      <input type=number v-model=corner_input style=text-align:right>
+      <label><input type=radio v-model=corner_unit value=mm> mm</label>
+      <label><input type=radio v-model=corner_unit value=in> in</label>
+      ({{corner}})
+      <br>
+      全寬深度 {{full}}in
+      <br>
+      <canvas width=800 height=400></canvas>
+    </div>
+    <script src=../Common/vue.3.4.23.js></script>
+    <script>
+      let w = 1200, h = 400;
+      let draw = (head, body, cone, corner) => {
+        let scale = 4;
+        if( head < 0 ) head = 0;
+        if( body <= head ) body = head+0.1;
+        if( cone <= 0 ) cone = 0.1;
+        if( corner < 0 ) corner = 0;
+        cone *= (body-head)/8;
+        head *= scale;
+        body *= scale;
+        cone *= scale;
+        corner *= scale;
+        let canvas = document.querySelector('canvas');
+        canvas.width = w;
+        canvas.height = h;
+        let head_angle = Math.atan2((body - head)/2, cone); // head_arc = M.PI/2 + @ ~ M.PI*3/2 - @
+        let head_r = head/2 / Math.cos(head_angle);
+        let corner_r = corner / Math.sin(head_angle/2)/2;
+
+        let y = h / 2;
+        let x = 10;
+        let ctx = canvas.getContext('2d');
+
+        ctx.beginPath();
+        ctx.moveTo(10, y - body/2);
+        ctx.lineTo(10 + 25.4*8*scale, y - body/2);
+        ctx.lineTo(10 + 25.4*8*scale, y + body/2);
+        ctx.lineTo(10, y + body/2);
+        ctx.lineTo(10, y - body/2);
+        ctx.clip();
+
+        ctx.beginPath();
+        ctx.fillStyle = '#ff99f1';
+        ctx.arc(x + head_r, y, head_r, Math.PI/2 + head_angle, Math.PI*3/2 - head_angle);
+        ctx.closePath();
+        ctx.fill();
+        x += head_r - head/2 * Math.tan(head_angle);
+
+        ctx.beginPath();
+        ctx.fillStyle = '#b399ff';
+        ctx.moveTo(x, y + head/2);
+        ctx.lineTo(x, y - head/2);
+        let Y = body/2 - corner_r * (1-Math.cos(head_angle));
+        let X = (Y - head/2) / Math.tan(head_angle);
+        ctx.lineTo(x + X, y - Y);
+        ctx.lineTo(x + X, y + Y);
+        ctx.lineTo(x, y + head/2);
+        ctx.fill();
+        x += X;
+
+        ctx.beginPath();
+        ctx.fillStyle = '#ff99f1';
+        let X2 = corner_r*Math.sin(head_angle);
+        ctx.moveTo(x + X2, y + body/2);
+        ctx.lineTo(x + X2, y - body/2);
+        ctx.arc(x + X2, y - body/2 + corner_r, corner_r, Math.PI*3/2, Math.PI*3/2-head_angle, true);
+        ctx.lineTo(x, y + body/2 - corner_r*(1-Math.cos(head_angle)));
+        ctx.moveTo(x + X2, y + body/2);
+        ctx.arc(x + X2, y + body/2 - corner_r, corner_r, Math.PI/2, Math.PI/2+head_angle);
+        ctx.fill();
+        x += X2;
+
+        ctx.beginPath();
+        ctx.fillStyle = '#b399ff';
+        ctx.moveTo(x, y + body/2);
+        ctx.lineTo(x, y - body/2);
+        ctx.lineTo(10 + 8*25.4*scale, y - body/2);
+        ctx.lineTo(10 + 8*25.4*scale, y + body/2);
+        ctx.lineTo(x, y + body/2);
+        ctx.fill();
+        return (x - 10) / scale;
+      };
+      let app = Vue.createApp({
+        data() { return {
+          head_input: 27,
+          head_unit: 'mm',
+          body_input: 35,
+          body_unit: 'mm',
+          cone_input: 3,
+          cone_unit: 'in',
+          corner_input: 10,
+          corner_unit: 'mm',
+          full: 3.7012458813119564,
+        } },
+        computed: {
+          head() {return this.head_input * (this.head_unit=='mm' ? 1 : 25.4)},
+          body() {return this.body_input * (this.body_unit=='mm' ? 1 : 25.4)},
+          cone() {return this.cone_input * (this.cone_unit=='mm' ? 1 : 25.4)},
+          corner() {return this.corner_input * (this.corner_unit=='mm' ? 1 : 25.4)},
+        },
+        watch: {
+          head() {this.draw()},
+          body() {this.draw()},
+          cone() {this.draw()},
+          corner() {this.draw()},
+        },
+        methods: {
+          draw() {
+            this.full = draw(this.head, this.body, this.cone, this.corner) / 25.4;
+          }
+        },
+      });
+      app.mount('#body');
+      draw(27, 35, 76.2, 10);
+    </script>
+  </body>
+</html>
