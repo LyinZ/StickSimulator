@@ -37,6 +37,7 @@
       let w = 1200, h = 400;
       let draw = (head, body, cone, corner) => {
         let scale = 4;
+        let pad_x = 10;
         if( head < 0 ) head = 0;
         if( body <= head ) body = head+0.1;
         if( cone <= 0 ) cone = 0.1;
@@ -50,7 +51,6 @@
         corner *= scale;
         */
 
-        let pad_x = 10 / scale;
         let full_l = 25.4*8;
         let head_angle = Math.atan2((body - head)/2, cone*(body-head)/8); // head_arc = M.PI/2 + @ ~ M.PI*3/2 - @
         let head_r = head/2 / Math.cos(head_angle);
@@ -81,60 +81,60 @@
         // head
         ctx.fillStyle = '#ff99f1';
         ctx.beginPath();
-        ctx.moveTo((pad_x + head_l)*scale, y+head_h*scale);
-        ctx.arc((pad_x + head_r)*scale, y, head_r*scale, Math.PI/2+head_angle, Math.PI*3/2-head_angle);
+        ctx.moveTo(pad_x + (head_l)*scale, y+head_h*scale);
+        ctx.arc(pad_x + (head_r)*scale, y, head_r*scale, Math.PI/2+head_angle, Math.PI*3/2-head_angle);
         ctx.closePath();
         ctx.fill();
 
         // cone
         ctx.fillStyle = '#b399ff';
         ctx.beginPath();
-        ctx.moveTo((pad_x + head_l)*scale, y-head_h*scale);
-        ctx.lineTo((pad_x + head_l + cone_l)*scale, y-corner_h*scale);
-        ctx.lineTo((pad_x + head_l + cone_l)*scale, y+corner_h*scale);
-        ctx.lineTo((pad_x + head_l)*scale, y+head_h*scale);
+        ctx.moveTo(pad_x + head_l*scale, y-head_h*scale);
+        ctx.lineTo(pad_x + (head_l + cone_l)*scale, y-corner_h*scale);
+        ctx.lineTo(pad_x + (head_l + cone_l)*scale, y+corner_h*scale);
+        ctx.lineTo(pad_x + head_l*scale, y+head_h*scale);
         ctx.closePath();
         ctx.fill();
 
         // corner
         ctx.fillStyle = '#ff99f1';
         ctx.beginPath();
-        ctx.moveTo((pad_x + head_l + cone_l)*scale, y+corner_h*scale);
-        ctx.lineTo((pad_x + head_l + cone_l)*scale, y-corner_h*scale);
-        ctx.arc((pad_x + head_l + cone_l + corner_l)*scale, y-(body/2-corner_r)*scale, corner_r*scale, Math.PI*3/2-head_angle, Math.PI*3/2);
-        ctx.lineTo((pad_x + head_l + cone_l + corner_l)*scale, y+body/2*scale);
-        ctx.arc((pad_x + head_l + cone_l + corner_l)*scale, y+(body/2-corner_r)*scale, corner_r*scale, Math.PI/2, Math.PI/2+head_angle);
+        ctx.moveTo(pad_x + (head_l + cone_l)*scale, y+corner_h*scale);
+        ctx.lineTo(pad_x + (head_l + cone_l)*scale, y-corner_h*scale);
+        ctx.arc(pad_x + (head_l + cone_l + corner_l)*scale, y-(body/2-corner_r)*scale, corner_r*scale, Math.PI*3/2-head_angle, Math.PI*3/2);
+        ctx.lineTo(pad_x + (head_l + cone_l + corner_l)*scale, y+body/2*scale);
+        ctx.arc(pad_x + (head_l + cone_l + corner_l)*scale, y+(body/2-corner_r)*scale, corner_r*scale, Math.PI/2, Math.PI/2+head_angle);
         ctx.closePath();
         ctx.fill();
 
         // body
         ctx.fillStyle = '#b399ff';
         ctx.beginPath();
-        ctx.moveTo((pad_x + head_l + cone_l + corner_l)*scale, y - body/2*scale);
-        ctx.lineTo((pad_x + head_l + cone_l + corner_l)*scale, y + body/2*scale);
-        ctx.lineTo((pad_x + head_l + cone_l + corner_l + body_l)*scale, y + body/2*scale);
-        ctx.lineTo((pad_x + head_l + cone_l + corner_l + body_l)*scale, y - body/2*scale);
+        ctx.moveTo(pad_x + (head_l + cone_l + corner_l)*scale, y - body/2*scale);
+        ctx.lineTo(pad_x + (head_l + cone_l + corner_l)*scale, y + body/2*scale);
+        ctx.lineTo(pad_x + (head_l + cone_l + corner_l + body_l)*scale, y + body/2*scale);
+        ctx.lineTo(pad_x + (head_l + cone_l + corner_l + body_l)*scale, y - body/2*scale);
         ctx.closePath();
         ctx.fill();
 
         // ring
         ctx.fillStyle = '#ff99f1';
         ctx.beginPath();
-        ctx.moveTo((pad_x + head_l + cone_l + corner_l + body_l)*scale, y - body/2*scale);
-        ctx.lineTo((pad_x + head_l + cone_l + corner_l + body_l)*scale, y + body/2*scale);
-        ctx.arc((pad_x + head_l + cone_l + corner_l + body_l)*scale, y + (body/2+5)*scale, 5*scale, Math.PI*3/2, Math.PI*3/2+ring_angle);
-        ctx.lineTo((pad_x + head_l + cone_l + corner_l + body_l + ring_l)*scale, y - (body/2+1)*scale);
-        ctx.arc((pad_x + head_l + cone_l + corner_l + body_l)*scale, y - (body/2+5)*scale, 5*scale, Math.PI/2-ring_angle, Math.PI/2);
+        ctx.moveTo(pad_x + (head_l + cone_l + corner_l + body_l)*scale, y - body/2*scale);
+        ctx.lineTo(pad_x + (head_l + cone_l + corner_l + body_l)*scale, y + body/2*scale);
+        ctx.arc(pad_x + (head_l + cone_l + corner_l + body_l)*scale, y + (body/2+5)*scale, 5*scale, Math.PI*3/2, Math.PI*3/2+ring_angle);
+        ctx.lineTo(pad_x + (head_l + cone_l + corner_l + body_l + ring_l)*scale, y - (body/2+1)*scale);
+        ctx.arc(pad_x + (head_l + cone_l + corner_l + body_l)*scale, y - (body/2+5)*scale, 5*scale, Math.PI/2-ring_angle, Math.PI/2);
         ctx.closePath();
         ctx.fill();
 
         // foot
         ctx.fillStyle = '#b399ff';
         ctx.beginPath();
-        ctx.moveTo((pad_x + head_l + cone_l + corner_l + body_l + ring_l)*scale, y + (body/2+1)*scale);
-        ctx.lineTo((pad_x + head_l + cone_l + corner_l + body_l + ring_l)*scale, y - (body/2+1)*scale);
-        ctx.arc((pad_x + head_l + cone_l + corner_l + body_l + ring_l + foot_l - 5)*scale, y - (body/2+2-5)*scale, 5*scale, Math.PI*3/2-ring_angle, Math.PI*2);
-        ctx.arc((pad_x + head_l + cone_l + corner_l + body_l + ring_l + foot_l - 5)*scale, y + (body/2+2-5)*scale, 5*scale, 0, Math.PI/2+ring_angle);
+        ctx.moveTo(pad_x + (head_l + cone_l + corner_l + body_l + ring_l)*scale, y + (body/2+1)*scale);
+        ctx.lineTo(pad_x + (head_l + cone_l + corner_l + body_l + ring_l)*scale, y - (body/2+1)*scale);
+        ctx.arc(pad_x + (head_l + cone_l + corner_l + body_l + ring_l + foot_l - 5)*scale, y - (body/2+2-5)*scale, 5*scale, Math.PI*3/2-ring_angle, Math.PI*2);
+        ctx.arc(pad_x + (head_l + cone_l + corner_l + body_l + ring_l + foot_l - 5)*scale, y + (body/2+2-5)*scale, 5*scale, 0, Math.PI/2+ring_angle);
         ctx.closePath();
         ctx.fill();
 
