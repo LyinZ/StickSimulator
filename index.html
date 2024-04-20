@@ -41,70 +41,104 @@
         if( body <= head ) body = head+0.1;
         if( cone <= 0 ) cone = 0.1;
         if( corner < 0 ) corner = 0;
-        cone *= (body-head)/8;
+        //cone *= (body-head)/8;
+
+        /*
         head *= scale;
         body *= scale;
         cone *= scale;
         corner *= scale;
+        */
+
+        let pad_x = 10 / scale;
+        let full_l = 25.4*8;
+        let head_angle = Math.atan2((body - head)/2, cone*(body-head)/8); // head_arc = M.PI/2 + @ ~ M.PI*3/2 - @
+        let head_r = head/2 / Math.cos(head_angle);
+        let head_l = head_r * (1 - Math.sin(head_angle));
+        let head_h = head_r * Math.cos(head_angle);
+        let corner_r = corner / Math.sin(head_angle/2)/2;
+        let corner_l = corner_r * Math.sin(head_angle);
+        let corner_h = corner_r * (Math.cos(head_angle) - 1) + body/2;
+        let cone_l = (corner_h - head_h)*2 / 8 * cone;
+        let ring_angle = Math.acos((5-1)/5);
+        let foot_angle = ring_angle + Math.PI/2;
+        let ring_l = 5 * Math.sin(ring_angle);
+        let foot_l = 5 * (1-Math.cos(foot_angle));
+        let body_l = full_l - head_l - cone_l - corner_l - ring_l - foot_l;
+
+        if( body_l < 0 ){
+          return 0;
+        }
+
         let canvas = document.querySelector('canvas');
         canvas.width = w;
         canvas.height = h;
-        let head_angle = Math.atan2((body - head)/2, cone); // head_arc = M.PI/2 + @ ~ M.PI*3/2 - @
-        let head_r = head/2 / Math.cos(head_angle);
-        let corner_r = corner / Math.sin(head_angle/2)/2;
 
         let y = h / 2;
         let x = 10;
         let ctx = canvas.getContext('2d');
 
-        ctx.beginPath();
-        ctx.moveTo(10, y - body/2);
-        ctx.lineTo(10 + 25.4*8*scale, y - body/2);
-        ctx.lineTo(10 + 25.4*8*scale, y + body/2);
-        ctx.lineTo(10, y + body/2);
-        ctx.lineTo(10, y - body/2);
-        ctx.clip();
-
-        ctx.beginPath();
+        // head
         ctx.fillStyle = '#ff99f1';
-        ctx.arc(x + head_r, y, head_r, Math.PI/2 + head_angle, Math.PI*3/2 - head_angle);
+        ctx.beginPath();
+        ctx.moveTo((pad_x + head_l)*scale, y+head_h*scale);
+        ctx.arc((pad_x + head_r)*scale, y, head_r*scale, Math.PI/2+head_angle, Math.PI*3/2-head_angle);
         ctx.closePath();
         ctx.fill();
-        x += head_r - head/2 * Math.tan(head_angle);
 
-        ctx.beginPath();
+        // cone
         ctx.fillStyle = '#b399ff';
-        ctx.moveTo(x, y + head/2);
-        ctx.lineTo(x, y - head/2);
-        let Y = body/2 - corner_r * (1-Math.cos(head_angle));
-        let X = (Y - head/2) / Math.tan(head_angle);
-        ctx.lineTo(x + X, y - Y);
-        ctx.lineTo(x + X, y + Y);
-        ctx.lineTo(x, y + head/2);
-        ctx.fill();
-        x += X;
-
         ctx.beginPath();
+        ctx.moveTo((pad_x + head_l)*scale, y-head_h*scale);
+        ctx.lineTo((pad_x + head_l + cone_l)*scale, y-corner_h*scale);
+        ctx.lineTo((pad_x + head_l + cone_l)*scale, y+corner_h*scale);
+        ctx.lineTo((pad_x + head_l)*scale, y+head_h*scale);
+        ctx.closePath();
+        ctx.fill();
+
+        // corner
         ctx.fillStyle = '#ff99f1';
-        let X2 = corner_r*Math.sin(head_angle);
-        ctx.moveTo(x + X2, y + body/2);
-        ctx.lineTo(x + X2, y - body/2);
-        ctx.arc(x + X2, y - body/2 + corner_r, corner_r, Math.PI*3/2, Math.PI*3/2-head_angle, true);
-        ctx.lineTo(x, y + body/2 - corner_r*(1-Math.cos(head_angle)));
-        ctx.moveTo(x + X2, y + body/2);
-        ctx.arc(x + X2, y + body/2 - corner_r, corner_r, Math.PI/2, Math.PI/2+head_angle);
-        ctx.fill();
-        x += X2;
-
         ctx.beginPath();
-        ctx.fillStyle = '#b399ff';
-        ctx.moveTo(x, y + body/2);
-        ctx.lineTo(x, y - body/2);
-        ctx.lineTo(10 + 8*25.4*scale, y - body/2);
-        ctx.lineTo(10 + 8*25.4*scale, y + body/2);
-        ctx.lineTo(x, y + body/2);
+        ctx.moveTo((pad_x + head_l + cone_l)*scale, y+corner_h*scale);
+        ctx.lineTo((pad_x + head_l + cone_l)*scale, y-corner_h*scale);
+        ctx.arc((pad_x + head_l + cone_l + corner_l)*scale, y-(body/2-corner_r)*scale, corner_r*scale, Math.PI*3/2-head_angle, Math.PI*3/2);
+        ctx.lineTo((pad_x + head_l + cone_l + corner_l)*scale, y+body/2*scale);
+        ctx.arc((pad_x + head_l + cone_l + corner_l)*scale, y+(body/2-corner_r)*scale, corner_r*scale, Math.PI/2, Math.PI/2+head_angle);
+        ctx.closePath();
         ctx.fill();
-        return (x - 10) / scale;
+
+        // body
+        ctx.fillStyle = '#b399ff';
+        ctx.beginPath();
+        ctx.moveTo((pad_x + head_l + cone_l + corner_l)*scale, y - body/2*scale);
+        ctx.lineTo((pad_x + head_l + cone_l + corner_l)*scale, y + body/2*scale);
+        ctx.lineTo((pad_x + head_l + cone_l + corner_l + body_l)*scale, y + body/2*scale);
+        ctx.lineTo((pad_x + head_l + cone_l + corner_l + body_l)*scale, y - body/2*scale);
+        ctx.closePath();
+        ctx.fill();
+
+        // ring
+        ctx.fillStyle = '#ff99f1';
+        ctx.beginPath();
+        ctx.moveTo((pad_x + head_l + cone_l + corner_l + body_l)*scale, y - body/2*scale);
+        ctx.lineTo((pad_x + head_l + cone_l + corner_l + body_l)*scale, y + body/2*scale);
+        ctx.arc((pad_x + head_l + cone_l + corner_l + body_l)*scale, y + (body/2+5)*scale, 5*scale, Math.PI*3/2, Math.PI*3/2+ring_angle);
+        ctx.lineTo((pad_x + head_l + cone_l + corner_l + body_l + ring_l)*scale, y - (body/2+1)*scale);
+        ctx.arc((pad_x + head_l + cone_l + corner_l + body_l)*scale, y - (body/2+5)*scale, 5*scale, Math.PI/2-ring_angle, Math.PI/2);
+        ctx.closePath();
+        ctx.fill();
+
+        // foot
+        ctx.fillStyle = '#b399ff';
+        ctx.beginPath();
+        ctx.moveTo((pad_x + head_l + cone_l + corner_l + body_l + ring_l)*scale, y + (body/2+1)*scale);
+        ctx.lineTo((pad_x + head_l + cone_l + corner_l + body_l + ring_l)*scale, y - (body/2+1)*scale);
+        ctx.arc((pad_x + head_l + cone_l + corner_l + body_l + ring_l + foot_l - 5)*scale, y - (body/2+2-5)*scale, 5*scale, Math.PI*3/2-ring_angle, Math.PI*2);
+        ctx.arc((pad_x + head_l + cone_l + corner_l + body_l + ring_l + foot_l - 5)*scale, y + (body/2+2-5)*scale, 5*scale, 0, Math.PI/2+ring_angle);
+        ctx.closePath();
+        ctx.fill();
+
+        return head_l + cone_l + corner_l;
       };
       let app = Vue.createApp({
         data() { return {
