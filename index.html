@@ -35,21 +35,11 @@
     <script src=../Common/vue.3.4.23.js></script>
     <script>
       let w = 1200, h = 400;
-      let draw = (head, body, cone, corner) => {
-        let scale = 4;
-        let pad_x = 10;
+      let get_dim = (head, body, cone, corner) => {
         if( head < 0 ) head = 0;
         if( body <= head ) body = head+0.1;
         if( cone <= 0 ) cone = 0.1;
         if( corner < 0 ) corner = 0;
-        //cone *= (body-head)/8;
-
-        /*
-        head *= scale;
-        body *= scale;
-        cone *= scale;
-        corner *= scale;
-        */
 
         let full_l = 25.4*8;
         let head_angle = Math.atan2((body - head)/2, cone*(body-head)/8); // head_arc = M.PI/2 + @ ~ M.PI*3/2 - @
@@ -65,6 +55,80 @@
         let ring_l = 5 * Math.sin(ring_angle);
         let foot_l = 5 * (1-Math.cos(foot_angle));
         let body_l = full_l - head_l - cone_l - corner_l - ring_l - foot_l;
+        return {
+          full_l,
+          head_angle,
+          head_r,
+          head_l,
+          head_h,
+          corner_r,
+          corner_l,
+          corner_h,
+          cone_l,
+          ring_angle,
+          foot_angle,
+          ring_l,
+          foot_l,
+          body_l,
+        };
+      };
+      let get_stl = (head, body, cone, corner) => {
+        if( head < 0 ) head = 0;
+        if( body <= head ) body = head+0.1;
+        if( cone <= 0 ) cone = 0.1;
+        if( corner < 0 ) corner = 0;
+
+        let {
+          full_l,
+          head_angle,
+          head_r,
+          head_l,
+          head_h,
+          corner_r,
+          corner_l,
+          corner_h,
+          cone_l,
+          ring_angle,
+          foot_angle,
+          ring_l,
+          foot_l,
+          body_l,
+        } = get_dim(head, body, cone, corner);
+
+        if( body_l < 0 ){ return NULL; }
+
+        let delta = 0.05;
+        let put_cone = (z0, z1, r0, r1) => {
+          let r_max = Math.max(r0, r1);
+          r_max * (1-cos(th/2)) < delta
+          1-cos(th/2) < delta / r_max
+        };
+      };
+      let draw = (head, body, cone, corner) => {
+        let scale = 4;
+        let pad_x = 10;
+
+        if( head < 0 ) head = 0;
+        if( body <= head ) body = head+0.1;
+        if( cone <= 0 ) cone = 0.1;
+        if( corner < 0 ) corner = 0;
+
+        let {
+          full_l,
+          head_angle,
+          head_r,
+          head_l,
+          head_h,
+          corner_r,
+          corner_l,
+          corner_h,
+          cone_l,
+          ring_angle,
+          foot_angle,
+          ring_l,
+          foot_l,
+          body_l,
+        } = get_dim(head, body, cone, corner);
 
         if( body_l < 0 ){
           return 0;
